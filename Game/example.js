@@ -14,16 +14,17 @@ let handSvgBackground;
 let fieldSvgBackground;
 let count = 0;
 let rowCount = 5;
-let chosenPile = 1;
+let chosenPile = 0;//被選中的牌堆
 let rectHeight = 150;
 let rectWidth = 100;
 let rectRadius = 20;
 let rectStroke;
 let actions = 0;
 let actionsText;
+let selectRect;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
-    .attr("width", 1200)       //设定宽度
+    .attr("width", 1350)       //设定宽度
     .attr("height", svgHeight)    //设定高度
     .attr("id", "fieldSvg"); 
 let handSvg = d3.select("#hand")     //选择文档中的body元素
@@ -245,24 +246,58 @@ function cardClicked(card)
 	let cardindex;
 	if(String(card.parentNode.parentNode.id)=="handSvg")//點擊手牌
 	{
-		cardIndex = (x-cardIndent)/(rectWidth+cardIndent)+(y-cardIndent)/(rectHeight+cardIndent)*rowCount;
-		let tempcard = handcard[cardIndex];
-		handcard.splice(cardIndex,1);
-		card.parentNode.parentNode.removeChild(card.parentNode);//移除手牌
-		if(chosenPile == 1)
-			fieldcard.pile1.push(tempcard);
-		else if(chosenPile == 2)
-			fieldcard.pile2.push(tempcard);
-		else if(chosenPile == 3)
-			fieldcard.pile3.push(tempcard);
-		handSvg.selectAll("g").remove()
-		printCard(handcard,handSvg,handSvgBackground,"#handSvg");
-		printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
+		console.log(chosenPile);
+		if(chosenPile>0)
+		{
+			cardIndex = (x-cardIndent)/(rectWidth+cardIndent)+(y-cardIndent)/(rectHeight+cardIndent)*rowCount;
+			let tempcard = handcard[cardIndex];
+			handcard.splice(cardIndex,1);
+			card.parentNode.parentNode.removeChild(card.parentNode);//移除手牌
+			if(chosenPile == 1)
+				fieldcard.pile1.push(tempcard);
+			else if(chosenPile == 2)
+				fieldcard.pile2.push(tempcard);
+			else if(chosenPile == 3)
+				fieldcard.pile3.push(tempcard);
+			handSvg.selectAll("g").remove()
+			printCard(handcard,handSvg,handSvgBackground,"#handSvg");
+			printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
+		}
 	}  
 	else if(String(card.parentNode.parentNode.id)=="fieldSvg")//點擊場面牌
 	{
 		//to do : 畫紅框改變選擇的牌堆
+		selectPile(x,y);
 	}  
 }
-
+function selectPile(clickedX,clickedY)
+{
+	let pileIndex = (clickedX-cardIndent)/rectWidth;	
+	if(pileIndex<4) pileIndex = 0;
+	else if(pileIndex<8) pileIndex = 1;
+	else pileIndex = 2;
+	chosenPile = pileIndex+1;
+	let rightIndentExist = 0;
+	if( pileIndex>0 ) rightIndentExist = 1;
+	let x = (parseInt(pileIndex))*4*rectWidth+parseInt(cardIndent)+cardIndent*rightIndentExist;
+	let redRectH=parseInt(cardIndent/2)+parseInt(rectHeight);
+	let redRectW=4*rectWidth;
+	if( selectRect )
+	{
+		let tempRect = document.getElementById("selectRect");
+		tempRect.parentNode.removeChild(tempRect);
+	} 
+	selectRect= d3.select("#fieldSvg")
+		.append('rect')
+		.attr({
+		'id':"selectRect",
+		'height':redRectH,
+		'width':redRectW,
+		'x':parseInt(x)-parseInt(cardIndent/3),
+		'y':parseInt(clickedY)-parseInt(cardIndent/3),
+		'fill':'None',
+		'stroke':'#FF0000',
+		'stroke-width':'10px',
+	});
+}
 init();
