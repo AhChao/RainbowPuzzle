@@ -14,6 +14,13 @@ let handSvgBackground;
 let fieldSvgBackground;
 let count = 0;
 let rowCount = 5;
+let chosenPile = 1;
+let rectHeight = 150;
+let rectWidth = 100;
+let rectRadius = 20;
+let rectStroke;
+let actions = 0;
+let actionsText;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
     .attr("width", 1200)       //设定宽度
@@ -26,6 +33,7 @@ let handSvg = d3.select("#hand")     //选择文档中的body元素
     .attr("id", "handSvg"); 
 function init()
 {
+	actionsText = document.getElementById("actionsText")
 	handSvgBackground= d3.select("#handSvg")
     .append('rect')
     .attr({
@@ -45,9 +53,8 @@ function init()
     'stroke-width':'10px',
     });
 	
-	getPowerSet(0,rainbowColor);	
-
-	//洗牌
+	//生牌後洗牌
+	getPowerSet(0,rainbowColor);
 	for(let i=0;i<deck.length;i++)
 	{
 		let randomIndex = parseInt(Math.random()*count);
@@ -55,13 +62,13 @@ function init()
 		deck[i] = deck[randomIndex];
 		deck[randomIndex] = t;
 	}
-	console.log(deck);
-	//send a card to player
+	//發牌給玩家
 	for(let i=0;i<10;i++) draw();
 	console.log(handcard);
 	printCard(handcard,handSvg,handSvgBackground,"#handSvg");
 	drawToField();
 	printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
+	
 }
 
 //判斷有無使用某元素的二元樹來生成冪集
@@ -96,6 +103,14 @@ function draw()
 	handcard.push(deck[0]);
 	deck.shift();
 }
+function drawBtn()
+{
+	handcard.push(deck[0]);
+	deck.shift();
+	actions++;
+    actionsText.innerText = actions;
+	printCard(handcard,handSvg,handSvgBackground,"#handSvg");
+}
 
 function drawToField()
 {
@@ -109,10 +124,6 @@ function drawToField()
 
 function printCard(cardContainer,svg,svgbackground,svgId)
 {	
-	var rectHeight = 150;
-	var rectWidth = 100;
-	var rectRadius = 20;
-	var rectStroke;
 	var rectX = 0+cardIndent;
 	var rectY = 0+cardIndent;
 	var beginX = rectX
@@ -121,14 +132,18 @@ function printCard(cardContainer,svg,svgbackground,svgId)
 	{		 
 		if(i%rowCount==0&&i)
 		{
-			rectY = rectY+rectHeight+cardIndent;
-			svg.attr("height", parseInt(svg.attr("height"))+parseInt(rectHeight)+parseInt(cardIndent));
-			svgbackground.attr("height", parseInt(svgbackground.attr("height"))+parseInt(rectHeight)+parseInt(cardIndent));
+			//svg.attr("height",1000);
+			//svgbackground.attr("height",1000);
+			svg.attr("height", (parseInt(rectHeight)+parseInt(cardIndent))*parseInt(cardContainer.length/rowCount+1)+parseInt(cardIndent));
+			svgbackground.attr("height", (parseInt(rectHeight)+parseInt(cardIndent))*parseInt((cardContainer.length-1)/rowCount+1)+parseInt(cardIndent));
 			rectX = beginX;
+			rectY = rectY+rectHeight+cardIndent;			
 		}
-	    var rects= d3.select(svgId)
-	    .append('rect')
-	    .attr({
+		var group = d3.select(svgId)
+	    .append('g');
+	    var rects= group//d3.select(svgId)
+	    .append('rect');
+	    rects.attr({
 	    'height':rectHeight,
 	    'width':rectWidth,
 	    'x':rectX,
@@ -138,7 +153,7 @@ function printCard(cardContainer,svg,svgbackground,svgId)
 	    'fill':'#ffffff',
 	    'stroke':'#000000',
 	    'stroke-width':'5px',
-	    'onclick':'alert()',
+	    'onclick':'cardClicked(this)',
 	    });	    
 	    //var colors = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#AAAAFF","#CA8EFF"]
 	    var colorArr=[]; 
@@ -146,16 +161,16 @@ function printCard(cardContainer,svg,svgbackground,svgId)
 	    {
 	    	colorArr.push(cardContainer[i].color[key]);
 	    }
-	    rainbowInCard(rectX,rectY,rectHeight,rectWidth,colorArr,svgId);
+	    rainbowInCard(rectX,rectY,rectHeight,rectWidth,colorArr,svgId,group);
 	    rectX=rectX+cardIndent+rectWidth;
-	    if(i<rowCount)
+	    if(i<rowCount&&init)
 	    {
-	    	svg.attr("width", parseInt(svg.attr("width"))+parseInt(rectWidth)+parseInt(cardIndent));
-			svgbackground.attr("width", parseInt(svgbackground.attr("width"))+parseInt(rectWidth)+parseInt(cardIndent));
+	    	svg.attr("width", (parseInt(rectWidth)+parseInt(cardIndent))*parseInt(rowCount)+parseInt(cardIndent));
+			svgbackground.attr("width", (parseInt(rectWidth)+parseInt(cardIndent))*parseInt(rowCount)+parseInt(cardIndent));
 		}
 	}
 }
-function rainbowInCard(x,y,h,w,colors,svgId)
+function rainbowInCard(x,y,h,w,colors,svgId,group)
 {
 	var indent = 20
 	var width = w-indent*2;
@@ -166,7 +181,8 @@ function rainbowInCard(x,y,h,w,colors,svgId)
     height=height/totalColors;
     for(var i=0;i<totalColors;i++)
 	{
-		d3.select(svgId)
+		group
+		//d3.select(svgId)
 	    .append('rect')
 	    .attr({
 	    'height':height,
@@ -180,11 +196,7 @@ function rainbowInCard(x,y,h,w,colors,svgId)
 }
 
 function printCardTofield(cardContainer,svg,svgbackground,svgId)
-{	
-	var rectHeight = 150;
-	var rectWidth = 100;
-	var rectRadius = 20;
-	var rectStroke;
+{		
 	var rectX = 0+cardIndent;
 	var rectY = 0+cardIndent;
 	var beginX = rectX; 
@@ -194,7 +206,9 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 	{		
 		for(var i = 0;i<cardContainer[pile].length;i++)
 		{		 
-		    var rects= d3.select(svgId)
+		    var group = d3.select(svgId)
+	    	.append('g');
+	    	var rects= group
 		    .append('rect')
 		    .attr({
 		    'height':rectHeight,
@@ -206,26 +220,49 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 		    'fill':'#ffffff',
 		    'stroke':'#000000',
 		    'stroke-width':'5px',
-		    'onclick':'alert()',
+		    'onclick':'cardClicked(this)',
 		    });	    
 		    //var colors = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#AAAAFF","#CA8EFF"]
 		    var colorArr=[]; 
-		    for( key in cardContainer[pile][0].color)
+		    for( key in cardContainer[pile][i].color)
 		    {
-		    	colorArr.push(cardContainer[pile][0].color[key]);
+		    	colorArr.push(cardContainer[pile][i].color[key]);
 		    }
-		    rainbowInCard(rectX,rectY,rectHeight,rectWidth,colorArr,svgId);
-		    rectX=rectX+cardIndent+rectWidth;
+		    rainbowInCard(rectX,rectY,rectHeight,rectWidth,colorArr,svgId,group);
+		    rectX=rectX+rectWidth*0.5;
 		}
 		countPile++;
-		rectX=parseInt(beginX)+(countPile)*3.5*rectWidth+parseInt(cardIndent);
-	}
-	
+		rectX=parseInt(beginX)+(countPile)*4*rectWidth+parseInt(cardIndent);
+	}	
 }
 
-function alert()
+function cardClicked(card)
 {
-	console.log("!!!!");
+	actions++;
+	actionsText.innerText = actions;
+	let x = card.getAttribute('x');
+	let y = card.getAttribute('y');
+	let cardindex;
+	if(String(card.parentNode.parentNode.id)=="handSvg")//點擊手牌
+	{
+		cardIndex = (x-cardIndent)/(rectWidth+cardIndent)+(y-cardIndent)/(rectHeight+cardIndent)*rowCount;
+		let tempcard = handcard[cardIndex];
+		handcard.splice(cardIndex,1);
+		card.parentNode.parentNode.removeChild(card.parentNode);//移除手牌
+		if(chosenPile == 1)
+			fieldcard.pile1.push(tempcard);
+		else if(chosenPile == 2)
+			fieldcard.pile2.push(tempcard);
+		else if(chosenPile == 3)
+			fieldcard.pile3.push(tempcard);
+		handSvg.selectAll("g").remove()
+		printCard(handcard,handSvg,handSvgBackground,"#handSvg");
+		printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
+	}  
+	else if(String(card.parentNode.parentNode.id)=="fieldSvg")//點擊場面牌
+	{
+		//to do : 畫紅框改變選擇的牌堆
+	}  
 }
 
 init();

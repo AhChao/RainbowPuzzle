@@ -6,15 +6,15 @@
 </head>
 <body>
 	<p>Rainbow Puzzle</p>
+	<h>牌堆完成數 / FinishRainBow : </h><h id = deckFinishText>0</h><br>
+	<h>行動數     / Turn          : </h><h id = actionsText>0</h><br>
 	<div id="field">
 		<p>場面牌 / field</p>
 	</div>
 	<div id="hand">
-		<p>手牌 / hand</p>
-	</div>
-	<input type="text" id="handcardIndex" value="0" onkeyup="value=value.replace(/[^\d]/g,'')">
-	<input id="clickMe" type="button" value="打牌" onclick="generateLines();" /><br>
-	<input id="clickMe" type="button" value="抽牌" onclick="generateLines();" />
+		<h>手牌 / hand</h> <input id="clickMe" type="button" value="抽牌" onclick="drawBtn();" />
+		<br>
+	</div>	
 </body>
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
 <script src="example.js"></script>
