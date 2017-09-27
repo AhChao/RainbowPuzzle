@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>RainbowPuzzle</title>
+</head>
+<body>
+	<p>Rainbow Puzzle</p>
+	<div id="field">
+		<p>場面牌 / field</p>
+	</div>
+	<div id="hand">
+		<p>手牌 / hand</p>
+	</div>
+	<input type="text" id="handcardIndex" value="0" onkeyup="value=value.replace(/[^\d]/g,'')">
+	<input id="clickMe" type="button" value="打牌" onclick="generateLines();" /><br>
+	<input id="clickMe" type="button" value="抽牌" onclick="generateLines();" />
+</body>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+<script src="example.js"></script>
+</html>
