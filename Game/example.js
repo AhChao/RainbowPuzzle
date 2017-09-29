@@ -137,6 +137,26 @@ function drawToPile(chosenPileNo)
 
 function printCard(cardContainer,svg,svgbackground,svgId)
 {	
+	if(handSvg)
+	{
+		d3.select("#handSvg").remove();
+		handSvg = d3.select("#hand")     //选择文档中的body元素
+	    .append("svg")          //添加一个svg元素
+	    .attr("width", svgWidth)       //设定宽度
+	    .attr("height", svgHeight)    //设定高度
+	    .attr("id", "handSvg");
+	    handSvgBackground= d3.select("#handSvg")
+	    .append('rect')
+	    .attr({
+	    'height':svgHeight,
+	    'width':svgWidth,
+	    'fill':'#ffffff',
+	    'stroke':'#000000',
+	    'stroke-width':'10px',
+	    });
+	}
+	svg=handSvg;
+	svgbackground=handSvgBackground;
 	var rectX = 0+cardIndent;
 	var rectY = 0+cardIndent;
 	var beginX = rectX
@@ -210,6 +230,44 @@ function rainbowInCard(x,y,h,w,colors,svgId,group)
 
 function printCardTofield(cardContainer,svg,svgbackground,svgId)
 {		
+	if(fieldSvg)
+	{
+		d3.select("#fieldSvg").remove();
+		fieldSvg = d3.select("#field")     //选择文档中的body元素
+	    .append("svg")          //添加一个svg元素
+	    .attr("width", 1350)       //设定宽度
+	    .attr("height", svgHeight)    //设定高度
+	    .attr("id", "fieldSvg");
+	    fieldSvgBackground= d3.select("#fieldSvg")
+	    .append('rect')
+	    .attr({
+	    'height':fieldSvg.attr("height"),
+	    'width':fieldSvg.attr("width"),
+	    'fill':'#ffffff',
+	    'stroke':'#000000',
+	    'stroke-width':'10px',
+	    });
+	    if(chosenPile>=0)
+	    {
+		    let pileX = [20,450,850];
+		    let redRectH=parseInt(cardIndent/2)+parseInt(rectHeight);
+			let redRectW=4*rectWidth;
+		    selectRect= d3.select("#fieldSvg")
+			.append('rect')
+			.attr({
+			'id':"selectRect",
+			'height':redRectH,
+			'width':redRectW,
+			'x':pileX[chosenPile],
+			'y':20,
+			'fill':'None',
+			'stroke':'#FF0000',
+			'stroke-width':'10px',
+			});
+		}
+	}
+	svg=fieldSvg;
+	svgbackground=fieldSvgBackground;
 	var rectX = 0+cardIndent;
 	var rectY = 0+cardIndent;
 	var beginX = rectX; 
@@ -251,14 +309,14 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 }
 
 function cardClicked(card)
-{
-	actions++;
+{	
 	actionsText.innerText = actions;
 	let x = card.getAttribute('x');
 	let y = card.getAttribute('y');
 	let cardindex;
 	if(String(card.parentNode.parentNode.id)=="handSvg")//點擊手牌
 	{
+		actions++;
 		let punishment = 0;
 		let fullColor=0;
 		console.log(chosenPile);
@@ -290,23 +348,13 @@ function cardClicked(card)
 					//滿足顏色清場面牌
 					pileColor[chosenPile]=[0,0,0,0,0,0,0];
 					fieldcard[chosenPile]=[];
-					//drawToPile(chosenPile);
-					let allRectTag = d3.selectAll("rect");
-					for(eachTag in allRectTag)
-					{
-						console.log(allRectTag[eachTag]);	
-						if(allRectTag[eachTag].pileNo==chosenPile)
-						{
-							console.log("Clear pile svg");							
-							allRectTag[eachTag].parentNode.parentNode.removeChild(allRectTag[eachTag].parentNode);
-						}
-					}
+					drawToPile(chosenPile);
 				}								
 			}
 			//移除手牌
 			handcard.splice(cardIndex,1);
 			card.parentNode.parentNode.removeChild(card.parentNode);
-			for(let i =0;i<punishment;i++) draw();//懲罰
+			for(let i =0;i<parseInt(punishment/2);i++) draw();//懲罰
 			//重畫
 			handSvg.selectAll("g").remove()
 			printCard(handcard,handSvg,handSvgBackground,"#handSvg");
@@ -331,7 +379,7 @@ function selectPile(clickedX,clickedY)
 	let x = (parseInt(pileIndex))*4*rectWidth+parseInt(cardIndent)+cardIndent*rightIndentExist;
 	let redRectH=parseInt(cardIndent/2)+parseInt(rectHeight);
 	let redRectW=4*rectWidth;
-	if( selectRect )
+	if( document.getElementById("selectRect") )
 	{
 		let tempRect = document.getElementById("selectRect");
 		tempRect.parentNode.removeChild(tempRect);
