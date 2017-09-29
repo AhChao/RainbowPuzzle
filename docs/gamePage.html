@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>RainbowPuzzle</title>
+</head>
+<body><font size="6" face="monospace">
+	<h><font size="10" face="monospace"><b>Rainbow Puzzle</b></font></h><br>
+	<h>牌堆完成數 / FinishRainBow : </h><h id = deckFinishText>0</h>
+	<h> 行動數     / Turn          : </h><h id = actionsText>0</h><br>
+	<div id="field">
+		<p>場面牌 / field</p>
+		<div id="topBar"></div>
+	</div>
+	<div id="hand">
+		<div id="butBar"></div>
+		<h>手牌 / hand</h> <input id="clickMe" type="button" value="抽牌" onclick="drawBtn();" />
+		<br>
+	</div>	
+	</font>
+</body>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+<script src="example.js"></script>
+</html>
