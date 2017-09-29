@@ -19,6 +19,7 @@ let rectStroke;
 let actions = 0;
 let deckFinish = 0;
 let actionsText;
+let leftcardsText;
 let selectRect;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
@@ -31,8 +32,9 @@ let handSvg = d3.select("#hand")     //选择文档中的body元素
     .attr("height", svgHeight)    //设定高度
     .attr("id", "handSvg"); 
 function init()
-{	
+{		
 	actionsText = document.getElementById("actionsText")
+	leftcardsText = document.getElementById("leftcardsText")
 	barGenerate("#topBar");
 	handSvgBackground= d3.select("#handSvg")
     .append('rect')
@@ -101,13 +103,16 @@ function getPowerSet(i, listA) {
 
 function draw()
 {
+	if(!deck.length) alert("牌庫告罄，你輸了!\n[重新整理/F5 以開啟一場新遊戲]");
 	handcard.push(deck[0]);
 	deck.shift();
+	leftcardsText.innerText = deck.length;
 }
 function drawBtn()
 {
 	handcard.push(deck[0]);
 	deck.shift();
+	leftcardsText.innerText = deck.length;
 	actions++;
     actionsText.innerText = actions;
 	printCard(handcard,handSvg,handSvgBackground,"#handSvg");
@@ -124,6 +129,7 @@ function drawToField()
 		}
 		deck.shift();
 	}	
+	leftcardsText.innerText = deck.length;
 }
 
 function drawToPile(chosenPileNo)
@@ -134,6 +140,7 @@ function drawToPile(chosenPileNo)
 		pileColor[chosenPileNo][rainbowColor.indexOf(deck[0].color[colors])]++;
 	}
 	deck.shift();
+	leftcardsText.innerText = deck.length;
 }
 
 function printCard(cardContainer,svg,svgbackground,svgId)
@@ -355,6 +362,7 @@ function cardClicked(card)
 			//移除手牌
 			handcard.splice(cardIndex,1);
 			card.parentNode.parentNode.removeChild(card.parentNode);
+			if(handcard.length==0) alert("恭喜你！ You won the Game!\n你共用了 "+actions+"次行動完成這次遊戲！\n[重新整理/F5 以開啟一場新遊戲]");
 			for(let i =0;i<parseInt(punishment/2);i++) draw();//懲罰
 			//重畫
 			handSvg.selectAll("g").remove()
