@@ -2,11 +2,8 @@ let rainbowColor = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#AAAAFF",
 let rainbowColorText = ["red","orange","yellow","green","blue","indigo","purple"];
 let deck = [];//club,diamond,heart,spade
 let handcard = [];
-let fieldcard = {
-	pile1:[],
-	pile2:[],
-	pile3:[]
-}
+let fieldcard = [[],[],[]];
+let pileColor = [[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]];
 let svgWidth = 200;
 let svgHeight = 200;
 let cardIndent = 30;
@@ -14,7 +11,7 @@ let handSvgBackground;
 let fieldSvgBackground;
 let count = 0;
 let rowCount = 5;
-let chosenPile = 0;//被選中的牌堆
+let chosenPile = -1;//被選中的牌堆
 let rectHeight = 150;
 let rectWidth = 100;
 let rectRadius = 20;
@@ -33,8 +30,9 @@ let handSvg = d3.select("#hand")     //选择文档中的body元素
     .attr("height", svgHeight)    //设定高度
     .attr("id", "handSvg"); 
 function init()
-{
+{	
 	actionsText = document.getElementById("actionsText")
+	barGenerate("#topBar");
 	handSvgBackground= d3.select("#handSvg")
     .append('rect')
     .attr({
@@ -53,6 +51,7 @@ function init()
     'stroke':'#000000',
     'stroke-width':'10px',
     });
+    barGenerate("#butBar");
 	
 	//生牌後洗牌
 	getPowerSet(0,rainbowColor);
@@ -115,11 +114,24 @@ function drawBtn()
 
 function drawToField()
 {
-	fieldcard.pile1.push(deck[0]);
-	deck.shift();
-	fieldcard.pile2.push(deck[0]);
-	deck.shift();
-	fieldcard.pile3.push(deck[0]);
+	for(let i =0;i<3;i++)
+	{
+		fieldcard[i].push(deck[0]);
+		for(colors in deck[0].color)
+		{
+			pileColor[i][rainbowColor.indexOf(deck[0].color[colors])]++;
+		}
+		deck.shift();
+	}	
+}
+
+function drawToPile(chosenPileNo)
+{
+	fieldcard[chosenPileNo].push(deck[0]);
+	for(colors in deck[0].color)
+	{
+		pileColor[chosenPileNo][rainbowColor.indexOf(deck[0].color[colors])]++;
+	}
 	deck.shift();
 }
 
@@ -222,6 +234,7 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 		    'stroke':'#000000',
 		    'stroke-width':'5px',
 		    'onclick':'cardClicked(this)',
+		    'pileNo':pile,
 		    });	    
 		    //var colors = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#AAAAFF","#CA8EFF"]
 		    var colorArr=[]; 
@@ -246,19 +259,55 @@ function cardClicked(card)
 	let cardindex;
 	if(String(card.parentNode.parentNode.id)=="handSvg")//點擊手牌
 	{
+		let punishment = 0;
+		let fullColor=0;
 		console.log(chosenPile);
-		if(chosenPile>0)
+		if(chosenPile>=0)
 		{
 			cardIndex = (x-cardIndent)/(rectWidth+cardIndent)+(y-cardIndent)/(rectHeight+cardIndent)*rowCount;
-			let tempcard = handcard[cardIndex];
+			let tempcard = handcard[cardIndex];			
+			if(chosenPile >= 0)//有選牌堆
+			{
+				fieldcard[chosenPile].push(tempcard);
+				//打出卡時 判斷消去與懲罰打出重複顏色
+				//deck[0].color 是牌堆中的第一張的顏色集合								
+				for(colors in tempcard.color)
+				{
+					if(pileColor[chosenPile][rainbowColor.indexOf(tempcard.color[colors])]>0)
+						punishment++;
+					pileColor[chosenPile][rainbowColor.indexOf(tempcard.color[colors])]++;
+				}	
+				for(colors in pileColor[chosenPile])
+				{
+					if(pileColor[chosenPile][colors]>0)
+						fullColor++;
+				}			
+				console.log("p : "+ punishment);
+				console.log("f : "+ fullColor);
+				if(fullColor>=7)
+				{
+					console.log("Clear Pile : "+chosenPile);
+					//滿足顏色清場面牌
+					pileColor[chosenPile]=[0,0,0,0,0,0,0];
+					fieldcard[chosenPile]=[];
+					//drawToPile(chosenPile);
+					let allRectTag = d3.selectAll("rect");
+					for(eachTag in allRectTag)
+					{
+						console.log(allRectTag[eachTag]);	
+						if(allRectTag[eachTag].pileNo==chosenPile)
+						{
+							console.log("Clear pile svg");							
+							allRectTag[eachTag].parentNode.parentNode.removeChild(allRectTag[eachTag].parentNode);
+						}
+					}
+				}								
+			}
+			//移除手牌
 			handcard.splice(cardIndex,1);
-			card.parentNode.parentNode.removeChild(card.parentNode);//移除手牌
-			if(chosenPile == 1)
-				fieldcard.pile1.push(tempcard);
-			else if(chosenPile == 2)
-				fieldcard.pile2.push(tempcard);
-			else if(chosenPile == 3)
-				fieldcard.pile3.push(tempcard);
+			card.parentNode.parentNode.removeChild(card.parentNode);
+			for(let i =0;i<punishment;i++) draw();//懲罰
+			//重畫
 			handSvg.selectAll("g").remove()
 			printCard(handcard,handSvg,handSvgBackground,"#handSvg");
 			printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
@@ -276,7 +325,7 @@ function selectPile(clickedX,clickedY)
 	if(pileIndex<4) pileIndex = 0;
 	else if(pileIndex<8) pileIndex = 1;
 	else pileIndex = 2;
-	chosenPile = pileIndex+1;
+	chosenPile = pileIndex;
 	let rightIndentExist = 0;
 	if( pileIndex>0 ) rightIndentExist = 1;
 	let x = (parseInt(pileIndex))*4*rectWidth+parseInt(cardIndent)+cardIndent*rightIndentExist;
@@ -298,6 +347,51 @@ function selectPile(clickedX,clickedY)
 		'fill':'None',
 		'stroke':'#FF0000',
 		'stroke-width':'10px',
+	});
+}
+
+function barGenerate(targetSvg)
+{
+	let svgIdTag = targetSvg+"Id";
+	let svgId = svgIdTag.slice(1);	
+	console.log(svgId);
+	let tempSvg = d3.select(targetSvg)     //选择文档中的body元素
+    .append("svg")          //添加一个svg元素
+    .attr("width", 1350)       //设定宽度
+    .attr("height", 50)    //设定高度
+    .attr("id", svgId); 
+	
+	let x=0;
+	let y=0;
+	let totalWidth = 1350//colorBar.attr('width');
+	let width = totalWidth/rainbowColor.length;
+	let height = 50;//colorBar.attr('height');
+	for(let i=0;i<rainbowColor.length;i++)
+	{
+		d3.select(svgIdTag)
+		.append('rect')
+		.attr({
+			'x':x,
+			'y':y,
+		'height':height,
+   		'width':width,
+    	'fill':rainbowColor[i],
+    	//'stroke':'#000000',
+    	//'stroke-width':'10px',
+		});
+		x=x+width;
+	}
+	let colorBar = d3.select(svgIdTag)
+		.append('rect')
+		.attr({
+			'x':0,
+			'y':0,
+			'id':"colorBar",
+		'height':50,
+   		'width':1350,
+    	'fill':'None',
+    	'stroke':'#000000',
+    	'stroke-width':'10px',
 	});
 }
 init();
