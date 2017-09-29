@@ -1,4 +1,6 @@
 let rainbowColor = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#0066CC","#CA8EFF"];
+let rainbowColorLight = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#0066CC","#CA8EFF"];
+let rainbowColorHeavy = ["#FF0000","#FF8000","#FFFF00","#00FF00","#0000FF","#6600FF","#800080"];
 let rainbowColorText = ["red","orange","yellow","green","blue","indigo","purple"];
 let deck = [];//club,diamond,heart,spade
 let handcard = [];
@@ -246,6 +248,7 @@ function rainbowInCard(x,y,h,w,colors,svgId,group)
 	    'width':width,
 	    'x':x,
 	    'y':y,
+	    //'fill':rainbowColor[i]
 	    'fill':colors[i]
 	    });
 	    y=y+height;
@@ -546,7 +549,21 @@ function colorHint(command)
 		});
 	}
 }
-	
+
+function colorChange()
+{
+	if(colorEnhance.checked)
+	{
+		rainbowColor = rainbowColorHeavy
+	}
+	else
+	{
+		rainbowColor = rainbowColorLight
+	}
+	printCard(handcard,handSvg,handSvgBackground,"#handSvg");
+	printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
+}
+
 function displayPic()
 {
 	d3.select("#body")
