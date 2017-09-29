@@ -1,9 +1,10 @@
-let rainbowColor = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#AAAAFF","#CA8EFF"];
+let rainbowColor = ["#FF5151","#FFAD86","#FFE66F","#93FF93","#84C1FF","#0066CC","#CA8EFF"];
 let rainbowColorText = ["red","orange","yellow","green","blue","indigo","purple"];
 let deck = [];//club,diamond,heart,spade
 let handcard = [];
 let fieldcard = [[],[],[]];
 let pileColor = [[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]];
+let viewColor = [0,0,0,0,0,0,0];
 let svgWidth = 200;
 let svgHeight = 200;
 let cardIndent = 30;
@@ -54,7 +55,7 @@ function init()
     'stroke':'#000000',
     'stroke-width':'10px',
     });
-    barGenerate("#butBar");
+    //barGenerate("#butBar");
 	
 	//生牌後洗牌
 	getPowerSet(0,rainbowColor);
@@ -348,7 +349,6 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 
 function cardClicked(card)
 {		
-	console.log("CCCC");
 	let x = card.getAttribute('x');
 	let y = card.getAttribute('y');
 	let cardindex;
@@ -378,6 +378,7 @@ function cardClicked(card)
 				}			
 				console.log("p : "+ punishment);
 				console.log("f : "+ fullColor);
+				colorHint();
 				if(fullColor>=7)
 				{
 					console.log("Clear Pile : "+chosenPile);
@@ -388,7 +389,8 @@ function cardClicked(card)
 					fieldcard[chosenPile]=[];
 					drawToPile(chosenPile);
 					chosenPile=-1;
-				}								
+					colorHint("init");
+				}					
 			}
 			//移除手牌
 			handcard.splice(cardIndex,1);
@@ -407,6 +409,7 @@ function cardClicked(card)
 	{
 		//to do : 畫紅框改變選擇的牌堆
 		selectPile(x,y);
+		colorHint();
 	}  
 }
 function selectPile(clickedX,clickedY)
@@ -438,6 +441,11 @@ function selectPile(clickedX,clickedY)
 		'stroke':'#FF0000',
 		'stroke-width':'10px',
 	});
+	//todo
+	if(chosenPile>-1)
+	{
+		viewColor = pileColor[chosenPile];
+	}	
 }
 
 function barGenerate(targetSvg)
@@ -448,7 +456,7 @@ function barGenerate(targetSvg)
 	let tempSvg = d3.select(targetSvg)     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
     .attr("width", 1350)       //设定宽度
-    .attr("height", 50)    //设定高度
+    .attr("height", 50)    //设定高度    
     .attr("id", svgId); 
 	
 	let x=0;
@@ -465,6 +473,7 @@ function barGenerate(targetSvg)
 			'y':y,
 		'height':height,
    		'width':width,
+   		"opacity":1,
     	'fill':rainbowColor[i],
     	//'stroke':'#000000',
     	//'stroke-width':'10px',
@@ -483,6 +492,59 @@ function barGenerate(targetSvg)
     	'stroke':'#000000',
     	'stroke-width':'10px',
 	});
+}
+
+function colorHint(command)
+{
+	let x=0;
+	let y=0;
+	let totalWidth = 1350//colorBar.attr('width');
+	let width = totalWidth/rainbowColor.length;
+	let height = 50;//colorBar.attr('height');
+	let opacityValue = 1;	
+	if(document.getElementById("hintLayer"))
+	{
+		d3.select("#hintLayer").remove();
+	}
+	if(command!="init")
+	{
+		d3.select("#topBarId")
+		.append('g')
+		.attr({
+		'id':"hintLayer"
+		});
+
+		for(let i=0;i<rainbowColor.length;i++)
+		{
+			opacityValue = 0.8;
+			if(viewColor[i]>0)
+				opacityValue=0;
+
+			d3.select("#hintLayer")
+			.append('rect')
+			.attr({
+				'x':x,
+				'y':y,
+			'height':height,
+	   		'width':width,
+	   		"opacity":opacityValue,
+	    	'fill':"#FFFFFF",
+			});
+			x=x+width;
+		}
+		d3.select("#hintLayer")
+		.append('rect')
+		.attr({
+			'x':0,
+			'y':0,
+			'id':"colorBar",
+		'height':50,
+   		'width':1350,
+    	'fill':'None',
+    	'stroke':'#000000',
+    	'stroke-width':'10px',
+		});
+	}
 }
 	
 function displayPic()
