@@ -248,7 +248,7 @@ function rainbowInCard(x,y,h,w,colors,svgId,group)
 	    'width':width,
 	    'x':x,
 	    'y':y,
-	    //'fill':rainbowColor[i]
+	    //變色功能封印'fill':rainbowColor[i]
 	    'fill':colors[i]
 	    });
 	    y=y+height;
