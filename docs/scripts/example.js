@@ -181,7 +181,7 @@ function printCard(cardContainer,svg,svgbackground,svgId)
 			rectY = rectY+rectHeight+cardIndent;			
 		}
 		var group = d3.select(svgId)
-	    .append('g');
+	    .append('g')
 	    var rects= group//d3.select(svgId)
 	    .append('rect');
 	    rects.attr({
@@ -203,12 +203,27 @@ function printCard(cardContainer,svg,svgbackground,svgId)
 	    	colorArr.push(cardContainer[i].color[key]);
 	    }
 	    rainbowInCard(rectX,rectY,rectHeight,rectWidth,colorArr,svgId,group);
+	    let fakeRects= group//d3.select(svgId)
+	    .append('rect')
+	    .attr({
+	    'height':rectHeight,
+	    'width':rectWidth,
+	    'x':rectX,
+	    'y':rectY,
+	    'rx':rectRadius,
+	    'ry':rectRadius,
+	    'fill':'#FF0000',
+	    'stroke':'#000000',
+	    'stroke-width':'5px',
+	    'opacity':'0',
+	    'onclick':'cardClicked(this)',
+	    });
 	    rectX=rectX+cardIndent+rectWidth;
 	    if(i<rowCount&&init)
 	    {
 	    	svg.attr("width", (parseInt(rectWidth)+parseInt(cardIndent))*parseInt(rowCount)+parseInt(cardIndent));
 			svgbackground.attr("width", (parseInt(rectWidth)+parseInt(cardIndent))*parseInt(rowCount)+parseInt(cardIndent));
-		}
+		}		
 	}
 }
 function rainbowInCard(x,y,h,w,colors,svgId,group)
@@ -309,6 +324,21 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 		    	colorArr.push(cardContainer[pile][i].color[key]);
 		    }
 		    rainbowInCard(rectX,rectY,rectHeight,rectWidth,colorArr,svgId,group);
+		    let fakeRects= group//d3.select(svgId)
+		    .append('rect')
+		    .attr({
+		    'height':rectHeight,
+		    'width':rectWidth,
+		    'x':rectX,
+		    'y':rectY,
+		    'rx':rectRadius,
+		    'ry':rectRadius,
+		    'fill':'#FF0000',
+		    'stroke':'#000000',
+		    'stroke-width':'5px',
+		    'opacity':'0',
+		    'onclick':'cardClicked(this)',
+		    });
 		    rectX=rectX+rectWidth*0.5;
 		}
 		countPile++;
@@ -318,6 +348,7 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 
 function cardClicked(card)
 {		
+	console.log("CCCC");
 	let x = card.getAttribute('x');
 	let y = card.getAttribute('y');
 	let cardindex;
@@ -452,5 +483,29 @@ function barGenerate(targetSvg)
     	'stroke':'#000000',
     	'stroke-width':'10px',
 	});
+}
+	
+function displayPic()
+{
+	d3.select("#body")
+	.append("img")
+	.attr('x',0)
+	.attr('y',0)
+	.attr('width', 1000)
+	.attr('height', 1000)
+	.attr("src","../Source/cover.png")
+	.attr("class","uplayer")
+}
+
+function svgBlick()
+{
+	d3.select("#handSvg")
+	.append("rect")
+	.attr('x',0)
+	.attr('y',0)
+	.attr('width', 1000)
+	.attr('height', 1000)
+	.attr('fill','#FF0000')
+	.attr("animate","attributeType=\"XML\" attributeName=\"fill\" values=\"#800;#f00;#800;#800\" dur=\"0.8s\" repeatCount=\"indefinite\"");
 }
 init();
