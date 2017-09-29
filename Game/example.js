@@ -17,6 +17,7 @@ let rectWidth = 100;
 let rectRadius = 20;
 let rectStroke;
 let actions = 0;
+let deckFinish = 0;
 let actionsText;
 let selectRect;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
@@ -309,19 +310,16 @@ function printCardTofield(cardContainer,svg,svgbackground,svgId)
 }
 
 function cardClicked(card)
-{	
-	actionsText.innerText = actions;
+{		
 	let x = card.getAttribute('x');
 	let y = card.getAttribute('y');
 	let cardindex;
 	if(String(card.parentNode.parentNode.id)=="handSvg")//點擊手牌
-	{
-		actions++;
+	{		
 		let punishment = 0;
 		let fullColor=0;
-		console.log(chosenPile);
 		if(chosenPile>=0)
-		{
+		{			
 			cardIndex = (x-cardIndent)/(rectWidth+cardIndent)+(y-cardIndent)/(rectHeight+cardIndent)*rowCount;
 			let tempcard = handcard[cardIndex];			
 			if(chosenPile >= 0)//有選牌堆
@@ -345,10 +343,13 @@ function cardClicked(card)
 				if(fullColor>=7)
 				{
 					console.log("Clear Pile : "+chosenPile);
+					deckFinish++;
+					deckFinishText.innerText = deckFinish;
 					//滿足顏色清場面牌
 					pileColor[chosenPile]=[0,0,0,0,0,0,0];
 					fieldcard[chosenPile]=[];
 					drawToPile(chosenPile);
+					chosenPile=-1;
 				}								
 			}
 			//移除手牌
@@ -359,6 +360,8 @@ function cardClicked(card)
 			handSvg.selectAll("g").remove()
 			printCard(handcard,handSvg,handSvgBackground,"#handSvg");
 			printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
+			actions++;
+			actionsText.innerText = actions;
 		}
 	}  
 	else if(String(card.parentNode.parentNode.id)=="fieldSvg")//點擊場面牌
