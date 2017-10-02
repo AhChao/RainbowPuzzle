@@ -39,9 +39,9 @@ let handSvg = d3.select("#hand")     //选择文档中的body元素
     .attr("id", "handSvg"); 
 function init()
 {		
-	document.getElementById("regame").style.visibility  = "collapse";
-	colorLimit = document.getElementById("colorLimit")
-	colorLimit = colorLimit.options[colorLimit.selectedIndex].value
+	//document.getElementById("regame").style.visibility  = "collapse";
+	//colorLimit = document.getElementById("colorLimit")
+	//colorLimit = colorLimit.options[colorLimit.selectedIndex].value
 	actionsText = document.getElementById("actionsText")
 	leftcardsText = document.getElementById("leftcardsText")
 	barGenerate("#topBar");
@@ -89,7 +89,7 @@ function getPowerSet(i, listA) {
     function recurse(i, listA) {
         if(i > listA.length - 1){
             //输出当前Ｂ值，即幂集里的一个元素            
-            if(listB.length>0&&listB.length<=colorLimit)//決定放入牌組的牌
+            if(listB.length>0)//決定放入牌組的牌
             {
             	//存入全域牌組
             	deck[count]={
