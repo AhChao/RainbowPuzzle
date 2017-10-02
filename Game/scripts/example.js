@@ -27,6 +27,7 @@ let selectRect;
 let colorExistBar = 0.0;
 let colorNotExistBar = 0.8;
 let colorLimit;
+let winMode = 0;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
     .attr("width", 1350)       //设定宽度
@@ -404,7 +405,7 @@ function cardClicked(card)
 			//移除手牌
 			handcard.splice(cardIndex,1);
 			card.parentNode.parentNode.removeChild(card.parentNode);
-			if(handcard.length==0) alert("恭喜你！ You won the Game!\n你共用了 "+actions+"次行動完成這次遊戲！\n[重新整理/F5 以開啟一場新遊戲]");
+			if(handcard.length==0&&winMode==0) alert("恭喜你！ You won the Game!\n你共用了 "+actions+"次行動完成這次遊戲！\n[重新整理/F5 以開啟一場新遊戲]");
 			for(let i =0;i<parseInt(punishment/2);i++) draw();//懲罰
 			//重畫
 			handSvg.selectAll("g").remove()
@@ -412,6 +413,7 @@ function cardClicked(card)
 			printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
 			actions++;
 			actionsText.innerText = actions;
+			if(handcard.length==0&&winMode==1) alert("恭喜你徹底打完！ You won the Game!\n你共用了 "+actions+"次行動完成這次遊戲！\n[重新整理/F5 以開啟一場新遊戲]");
 		}
 	}  
 	else if(String(card.parentNode.parentNode.id)=="fieldSvg")//點擊場面牌
@@ -576,6 +578,12 @@ function fadeStyleChange()
 	colorExistBar = colorNotExistBar;
 	colorNotExistBar = t;	
 	colorHint();
+}
+
+function winModeChange()
+{
+	if(winMode) winMode = 0;
+	else winMode = 1;
 }
 
 function displayPic()
