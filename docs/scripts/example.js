@@ -26,7 +26,6 @@ let leftcardsText;
 let selectRect;
 let colorExistBar = 0.0;
 let colorNotExistBar = 0.8;
-let colorLimit;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
     .attr("width", 1350)       //设定宽度
@@ -39,9 +38,6 @@ let handSvg = d3.select("#hand")     //选择文档中的body元素
     .attr("id", "handSvg"); 
 function init()
 {		
-	//document.getElementById("regame").style.visibility  = "collapse";
-	//colorLimit = document.getElementById("colorLimit")
-	//colorLimit = colorLimit.options[colorLimit.selectedIndex].value
 	actionsText = document.getElementById("actionsText")
 	leftcardsText = document.getElementById("leftcardsText")
 	barGenerate("#topBar");
@@ -79,8 +75,7 @@ function init()
 	console.log(handcard);
 	printCard(handcard,handSvg,handSvgBackground,"#handSvg");
 	drawToField();
-	printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
-	
+	printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");	
 }
 
 //判斷有無使用某元素的二元樹來生成冪集
