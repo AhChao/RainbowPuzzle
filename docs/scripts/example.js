@@ -24,8 +24,8 @@ let deckFinish = 0;
 let actionsText;
 let leftcardsText;
 let selectRect;
-let colorExistBar = 0.8;
-let colorNotExistBar = 0.0;
+let colorExistBar = 0.0;
+let colorNotExistBar = 0.8;
 let colorLimit;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
@@ -601,4 +601,4 @@ function svgBlick()
 	.attr('fill','#FF0000')
 	.attr("animate","attributeType=\"XML\" attributeName=\"fill\" values=\"#800;#f00;#800;#800\" dur=\"0.8s\" repeatCount=\"indefinite\"");
 }
-//init();
+init();
