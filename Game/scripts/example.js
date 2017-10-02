@@ -24,6 +24,9 @@ let deckFinish = 0;
 let actionsText;
 let leftcardsText;
 let selectRect;
+let colorExistBar = 0.8;
+let colorNotExistBar = 0.0;
+let colorLimit;
 let fieldSvg = d3.select("#field")     //选择文档中的body元素
     .append("svg")          //添加一个svg元素
     .attr("width", 1350)       //设定宽度
@@ -36,6 +39,9 @@ let handSvg = d3.select("#hand")     //选择文档中的body元素
     .attr("id", "handSvg"); 
 function init()
 {		
+	document.getElementById("regame").style.visibility  = "collapse";
+	colorLimit = document.getElementById("colorLimit")
+	colorLimit = colorLimit.options[colorLimit.selectedIndex].value
 	actionsText = document.getElementById("actionsText")
 	leftcardsText = document.getElementById("leftcardsText")
 	barGenerate("#topBar");
@@ -83,7 +89,7 @@ function getPowerSet(i, listA) {
     function recurse(i, listA) {
         if(i > listA.length - 1){
             //输出当前Ｂ值，即幂集里的一个元素            
-            if(listB.length>0)
+            if(listB.length>0&&listB.length<=colorLimit)//決定放入牌組的牌
             {
             	//存入全域牌組
             	deck[count]={
@@ -519,9 +525,9 @@ function colorHint(command)
 
 		for(let i=0;i<rainbowColor.length;i++)
 		{
-			opacityValue = 0.8;
+			opacityValue = colorExistBar;
 			if(viewColor[i]>0)
-				opacityValue=0;
+				opacityValue=colorNotExistBar;
 
 			d3.select("#hintLayer")
 			.append('rect')
@@ -564,6 +570,14 @@ function colorChange()
 	printCardTofield(fieldcard,fieldSvg,fieldSvgBackground,"#fieldSvg");
 }
 
+function fadeStyleChange()
+{
+	t = colorExistBar;
+	colorExistBar = colorNotExistBar;
+	colorNotExistBar = t;	
+	colorHint();
+}
+
 function displayPic()
 {
 	d3.select("#body")
@@ -587,4 +601,4 @@ function svgBlick()
 	.attr('fill','#FF0000')
 	.attr("animate","attributeType=\"XML\" attributeName=\"fill\" values=\"#800;#f00;#800;#800\" dur=\"0.8s\" repeatCount=\"indefinite\"");
 }
-init();
+//init();
